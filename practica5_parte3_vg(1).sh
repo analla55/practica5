@@ -22,17 +22,19 @@ fi
 
 for var in "$@"
 do
-	ssh -n "as@${ip}" mount | grep "^${var}" >/dev/null 2>&1
-	if [ $? -eq 0 ]; then
-		echo "La partición ${var} debe desmontarse antes de ser añadida a ${vg}"
-		continue
-	fi
+	echo $var
+	ssh -n "as@${ip}" sudo umount ${var}"" #>/dev/null 2>&1
+	#ssh -n "as@${ip}" mount | grep "^${var}" >/dev/null 2>&1
+	#if [ $? -ne 0 ]; then
+	#	echo "La partición ${var} debe desmontarse antes de ser añadida a ${vg}"
+	#	continue
+	#fi
 
 	ssh -n "as@${ip}" sudo pvs | grep "${var}" >/dev/null 2>&1
 	if [ $? -eq 0 ] ; then
 		echo "Ya existe el grupo físico ${var} y dentro de ${vg}"
 	else
-		ssh -n "as@${ip}" sudo pvcreate -y "${var}" >/dev/null 2>&1
+		ssh -n "as@${ip}" sudo pvcreate -y "${var}" #>/dev/null
 	
 		if [ $? -eq 0 ] ; then
 			echo "Grupo físico ${var} creado correctamente"
@@ -46,8 +48,11 @@ do
 		if [ $? -eq 0 ] ; then
 			echo "Particion ${var} anadida al grupo 
 			${vg} correctamente"
+			
 		else
 			echo "No se ha podido anadir la particion ${var} al grupo ${vg} o particion ya creada"
 		fi
 	fi
 done
+
+
